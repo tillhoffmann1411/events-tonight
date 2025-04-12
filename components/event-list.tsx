@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo, Suspense } from "react"
 import { format, isSameDay, parseISO, isAfter, startOfDay } from "date-fns"
 import { de } from "date-fns/locale"
 import { Clock, MapPin, Music, Ticket } from "lucide-react"
@@ -16,7 +16,7 @@ interface EventListProps {
   events: Event[]
 }
 
-export default function EventList({ events }: EventListProps) {
+function EventListContent({ events }: EventListProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const today = new Date()
@@ -197,6 +197,19 @@ export default function EventList({ events }: EventListProps) {
         </TabsContent>
       ))}
     </Tabs>
+  )
+}
+
+export default function EventList(props: EventListProps) {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center py-12">
+        <h2 className="text-2xl font-bold mb-4">Lade Events...</h2>
+        <p className="text-zinc-400">Die Veranstaltungen werden geladen.</p>
+      </div>
+    }>
+      <EventListContent {...props} />
+    </Suspense>
   )
 }
 
