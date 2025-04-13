@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { Event } from "@/types/event"
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 interface EventListProps {
@@ -130,13 +131,26 @@ function EventListContent({ events }: EventListProps) {
       {sortedDays.map((dateStr) => (
         <TabsContent key={dateStr} value={dateStr} className="mt-0">
           <div className="space-y-4">
-            {eventsByDay[dateStr].map((event) => (
+            {eventsByDay[dateStr].sort((a, b) => a.club_id - b.club_id).map((event) => (
               <Card
                 key={event.id}
                 className="overflow-hidden border-zinc-800 bg-zinc-900/80 transition-all hover:bg-zinc-800/80"
               >
-                <div className="grid gap-4 p-5 md:grid-cols-[1fr_auto]">
-                  <div className="space-y-3">
+                <div className="grid gap-4 md:grid-cols-[250px_1fr_auto]">
+                  {event.image_url ? (
+                    <div className="relative h-[200px] w-full md:h-full">
+                      <Image
+                        src={event.image_url}
+                        alt={event.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 250px"
+                      />
+                    </div>
+                  ) : (
+                    <div className="hidden md:block" />
+                  )}
+                  <div className="space-y-3 p-5">
                     <div className="space-y-1">
                       <h3 className="text-xl font-bold tracking-tight">{event.title}</h3>
                       <p className="text-sm font-medium uppercase text-zinc-400">{event.club?.name}</p>
@@ -181,7 +195,7 @@ function EventListContent({ events }: EventListProps) {
                     )}
                   </div>
 
-                  <div className="flex items-center">
+                  <div className="flex items-center p-5">
                     {event.event_url && (
                       <Button asChild>
                         <Link href={event.event_url} target="_blank">

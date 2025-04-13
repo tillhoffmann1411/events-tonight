@@ -2,9 +2,11 @@
 
 import { createServerClient } from "@/lib/supabase/server"
 import type { Event } from "@/types/event"
+import { unstable_noStore } from 'next/cache'
 
 // Funktion zum Abrufen aller Events mit Tags
 export async function getEvents(): Promise<Event[]> {
+  unstable_noStore();
   const supabase = createServerClient()
 
   // Abrufen aller Events mit Club-Informationen
