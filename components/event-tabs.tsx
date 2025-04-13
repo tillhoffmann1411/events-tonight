@@ -20,8 +20,8 @@ export const EventTabs = ({ sortedDays, activeTab, today }: EventTabsProps) => {
     }, [activeTab])
 
     return (
-        <div className="mb-8 -mx-4 px-4 overflow-x-auto scrollbar-hide">
-            <TabsList className="h-auto w-full inline-flex flex-nowrap justify-start gap-2 bg-transparent pb-2">
+        <div className="w-full overflow-x-auto scrollbar-hide py-2">
+            <TabsList className="h-12 w-full inline-flex flex-nowrap justify-start gap-2 px-4 bg-transparent">
                 {sortedDays.map((dateStr) => {
                     const date = new Date(dateStr)
                     const isToday = isSameDay(date, today)
@@ -33,7 +33,7 @@ export const EventTabs = ({ sortedDays, activeTab, today }: EventTabsProps) => {
                             value={dateStr}
                             data-value={dateStr}
                             className={cn(
-                                "rounded-full border border-zinc-800 bg-zinc-900 px-4 py-2 data-[state=active]:border-zinc-600 data-[state=active]:bg-zinc-800",
+                                "rounded-full border border-zinc-800 bg-zinc-900 px-4 py-2 data-[state=active]:text-zinc-300 data-[state=active]:border-zinc-600 data-[state=active]:bg-zinc-800",
                                 isToday && "border-emerald-900/60 text-emerald-300 data-[state=active]:border-emerald-800",
                             )}
                         >

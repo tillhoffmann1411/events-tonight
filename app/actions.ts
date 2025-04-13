@@ -2,7 +2,8 @@
 
 import { createServerClient } from "@/lib/supabase/server"
 import type { Event } from "@/types/event"
-import { startOfDay, endOfDay, format } from 'date-fns'
+import { startOfDay, endOfDay, format, addWeeks } from 'date-fns'
+import { Club } from '@/types/club'
 
 // Function to get all future dates that have events
 export async function getEventDates(): Promise<string[]> {
@@ -77,6 +78,58 @@ export async function getEvents(): Promise<Event[]> {
 
   if (eventsError) {
     console.error("Error fetching events:", eventsError)
+    return []
+  }
+
+  if (!eventsData) {
+    return []
+  }
+
+  return eventsData.map(event => ({
+    ...event,
+    date: new Date(event.date),
+    created_at: new Date(event.created_at)
+  })) as Event[]
+}
+
+export async function getAllClubs(): Promise<Club[]> {
+  const supabase = createServerClient()
+
+  const { data: clubs, error } = await supabase
+    .from("clubs")
+    .select("*")
+    .order('name', { ascending: true })
+
+  if (error) {
+    console.error("Error fetching clubs:", error)
+    return []
+  }
+
+  return clubs || []
+}
+
+export async function getEventsFromLikedClubs(clubIds: string[]): Promise<Event[]> {
+  if (!clubIds.length) return []
+
+  const supabase = createServerClient()
+  const today = new Date()
+  const twoWeeksFromNow = addWeeks(today, 2)
+
+  const { data: eventsData, error: eventsError } = await supabase
+    .from("events")
+    .select(`
+      *,
+      club: clubs (
+        *
+      )
+    `)
+    .in('club_id', clubIds)
+    .gte('date', format(startOfDay(today), "yyyy-MM-dd'T'HH:mm:ssXXX"))
+    .lt('date', format(endOfDay(twoWeeksFromNow), "yyyy-MM-dd'T'HH:mm:ssXXX"))
+    .order('date', { ascending: true })
+
+  if (eventsError) {
+    console.error("Error fetching events from liked clubs:", eventsError)
     return []
   }
 

@@ -12,7 +12,6 @@ import { EventCardSkeleton } from "./event-card-skeleton"
 import { scrollbarHideStyles } from "@/styles/scrollbar-hide"
 import { getEventDates, getEventsByDate } from "@/app/actions"
 
-
 function EventListContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
@@ -24,7 +23,7 @@ function EventListContent() {
     const [events, setEvents] = useState<Event[]>([])
     const [isLoading, setIsLoading] = useState(false)
 
-    // Load available dates only once on mount
+    // Load available dates and set initial active tab
     useEffect(() => {
         const loadDates = async () => {
             setIsLoading(true)
@@ -33,45 +32,39 @@ function EventListContent() {
                 const date = parseISO(dateStr)
                 return isSameDay(date, today) || isAfter(date, startOfToday)
             })
-            setDates(filteredDates.map(dateStr => ({
+            const formattedDates = filteredDates.map(dateStr => ({
                 date: parseISO(dateStr),
                 day: dateStr
-            })))
+            }))
+            setDates(formattedDates)
+
+            // Set initial active tab and load its events
+            if (formattedDates.length > 0) {
+                const tabFromUrl = searchParams.get('date')
+                const initialTab = tabFromUrl && formattedDates.some(date => date.day === tabFromUrl)
+                    ? tabFromUrl
+                    : formattedDates[0].day
+
+                setActiveTab(initialTab)
+                const initialEvents = await getEventsByDate(initialTab)
+                setEvents(initialEvents)
+            }
             setIsLoading(false)
         }
         loadDates()
-    }, []) // Empty dependency array as we only want this to run once
+    }, []) // Initial load only
 
     // Handle tab changes and URL updates
-    const handleTabChange = useCallback((value: string) => {
+    const handleTabChange = useCallback(async (value: string) => {
+        setIsLoading(true)
         setActiveTab(value)
         const params = new URLSearchParams(searchParams)
         params.set('date', value)
         router.replace(`?${params.toString()}`)
+        const newEvents = await getEventsByDate(value)
+        setEvents(newEvents)
+        setIsLoading(false)
     }, [searchParams, router])
-
-    // Set initial active tab
-    useEffect(() => {
-        if (dates.length === 0) return;
-        const tabFromUrl = searchParams.get('date')
-        if (tabFromUrl && dates.some(date => date.day === tabFromUrl)) { // if the tab from the url is in the dates array
-            handleTabChange(tabFromUrl);
-        } else {
-            handleTabChange(dates[0].day);
-        }
-    }, [dates, searchParams])
-
-    // Load events when tab changes
-    useEffect(() => {
-        const loadEvents = async () => {
-            if (!activeTab) return
-            setIsLoading(true)
-            const newEvents = await getEventsByDate(activeTab)
-            setEvents(newEvents)
-            setIsLoading(false)
-        }
-        loadEvents()
-    }, [activeTab])
 
     useEffect(() => {
         const styleElement = document.createElement("style")
@@ -87,29 +80,33 @@ function EventListContent() {
     }
 
     return (
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-            <EventTabs
-                sortedDays={dates.map(date => date.day)}
-                activeTab={activeTab}
-                today={today}
-            />
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full min-h-screen">
+            <div className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm">
+                <EventTabs
+                    sortedDays={dates.map(date => date.day)}
+                    activeTab={activeTab}
+                    today={today}
+                />
+            </div>
 
-            {dates.map((date) => (
-                <TabsContent key={date.day} value={date.day} className="mt-0">
-                    <div className="space-y-4">
-                        {isLoading ? (
-                            <>
-                                <EventCardSkeleton />
-                                <EventCardSkeleton />
-                            </>
-                        ) : (
-                            events.map((event) => (
-                                <EventCard key={event.id} event={event} />
-                            ))
-                        )}
-                    </div>
-                </TabsContent>
-            ))}
+            <div className="pt-16">
+                {dates.map((date) => (
+                    <TabsContent key={date.day} value={date.day} className="px-4">
+                        <div className="space-y-4">
+                            {isLoading ? (
+                                <>
+                                    <EventCardSkeleton />
+                                    <EventCardSkeleton />
+                                </>
+                            ) : (
+                                events.map((event) => (
+                                    <EventCard key={event.id} event={event} />
+                                ))
+                            )}
+                        </div>
+                    </TabsContent>
+                ))}
+            </div>
         </Tabs>
     )
 }

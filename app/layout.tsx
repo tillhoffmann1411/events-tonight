@@ -1,32 +1,28 @@
-import type React from "react"
-import "./globals.css"
-import type { Metadata } from "next"
-import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
+import './globals.css'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import BottomNav from '../components/bottom-nav'
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "Urban Nights | Club Events",
-  description: "Entdecke die besten Club-Events in deiner Stadt",
-    generator: 'v0.dev'
+  title: 'Dance Cologne',
+  description: 'Find dance events in Cologne',
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="de" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className}`} suppressHydrationWarning>
+        <div className="mb-20">
           {children}
-        </ThemeProvider>
+        </div>
+        <BottomNav />
       </body>
     </html>
   )
 }
-
-
-import './globals.css'
