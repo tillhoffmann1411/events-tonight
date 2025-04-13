@@ -2,12 +2,10 @@
 
 import { createServerClient } from "@/lib/supabase/server"
 import type { Event } from "@/types/event"
-import { unstable_noStore } from 'next/cache'
 import { startOfDay, endOfDay, format } from 'date-fns'
 
 // Function to get all future dates that have events
 export async function getEventDates(): Promise<string[]> {
-  unstable_noStore();
   const supabase = createServerClient()
 
   const { data, error } = await supabase
@@ -26,7 +24,6 @@ export async function getEventDates(): Promise<string[]> {
 
 // Function to get events for a specific date
 export async function getEventsByDate(date: string): Promise<Event[]> {
-  unstable_noStore();
   const supabase = createServerClient()
 
   // Convert the date string to the start and end of the day in ISO format with timezone
@@ -65,7 +62,6 @@ export async function getEventsByDate(date: string): Promise<Event[]> {
 
 // Legacy function to get all events (can be removed if not needed elsewhere)
 export async function getEvents(): Promise<Event[]> {
-  unstable_noStore();
   const supabase = createServerClient()
 
   const { data: eventsData, error: eventsError } = await supabase
