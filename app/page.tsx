@@ -1,8 +1,6 @@
 import EventList from "@/components/event-list"
-import { getEvents } from "@/app/actions"
 
 export default async function Home() {
-  const events = await getEvents()
 
   return (
     <main className="min-h-screen bg-black text-white">
@@ -10,7 +8,8 @@ export default async function Home() {
         <header className="mb-12 text-center">
           <h1 className="mb-2 text-4xl font-bold tracking-tight md:text-5xl">Dance Cologne</h1>
         </header>
-        <EventList events={events} />
+        <EventList
+        />
       </div>
     </main>
   )
