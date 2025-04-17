@@ -92,7 +92,7 @@ function EventListContent() {
             <div className="pt-16">
                 {dates.map((date) => (
                     <TabsContent key={date.day} value={date.day} className="px-4">
-                        <div className="space-y-4">
+                        <div className="space-y-4 md:max-w-screen-md mx-auto">
                             {isLoading ? (
                                 <>
                                     <EventCardSkeleton />

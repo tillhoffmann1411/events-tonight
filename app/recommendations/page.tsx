@@ -53,7 +53,7 @@ const EventGroupComponent = ({ group }: { group: EventGroup }) => {
                 )}
             </button>
             {isExpanded && (
-                <div className="space-y-4">
+                <div className="space-y-4 max-w-screen-md mx-auto">
                     {group.events.map((event) => (
                         <EventCard key={event.id} event={event} />
                     ))}
